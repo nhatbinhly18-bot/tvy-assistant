@@ -138,61 +138,63 @@ with st.sidebar:
 # ----------------- 模块一：领导公务单生成器 -----------------
 if mode == "📝 领导公务单自动生成器":
     # Custom CSS for compact layout
-    st.markdown("""
-    <style>
-        /* 完全去除所有间距 */
-        .main .block-container {
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
-        }
-        
-        /* 标题完全无间距 */
-        h1, h2, h3 {
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-        }
-        
-        /* 段落完全无间距 */
-        p {
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-        }
-        
-        /* info/warning 框最小间距 */
-        .stAlert {
-            margin-top: 0.2rem !important;
-            margin-bottom: 0.2rem !important;
-            padding: 0.5rem 1rem !important;
-        }
-        
-        /* 所有元素间距为0 */
-        .element-container {
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
-        }
-        
-        /* 绿色按钮样式 */
-        div.stButton > button:first-child[kind="primary"] {
-            background-color: #28a745;
-            border-color: #28a745;
-            color: white;
-        }
-        div.stButton > button:first-child[kind="primary"]:hover {
-            background-color: #218838;
-            border-color: #1e7e34;
-        }
-    </style>
-    """, unsafe_allow_html=True)
+    # Custom CSS for compact layout
+    # st.markdown("""
+    # <style>
+    #     /* 完全去除所有间距 */
+    #     .main .block-container {
+    #         padding-top: 0.5rem;
+    #         padding-bottom: 0.5rem;
+    #     }
+    #     
+    #     /* 标题完全无间距 */
+    #     h1, h2, h3 {
+    #         margin-top: 0 !important;
+    #         margin-bottom: 0 !important;
+    #         padding-top: 0 !important;
+    #         padding-bottom: 0 !important;
+    #     }
+    #     
+    #     /* 段落完全无间距 */
+    #     p {
+    #         margin-top: 0 !important;
+    #         margin-bottom: 0 !important;
+    #         padding-top: 0 !important;
+    #         padding-bottom: 0 !important;
+    #     }
+    #     
+    #     /* info/warning 框最小间距 */
+    #     .stAlert {
+    #         margin-top: 0.2rem !important;
+    #         margin-bottom: 0.2rem !important;
+    #         padding: 0.5rem 1rem !important;
+    #     }
+    #     
+    #     /* 所有元素间距为0 */
+    #     .element-container {
+    #         margin-top: 0 !important;
+    #         margin-bottom: 0 !important;
+    #         padding-top: 0 !important;
+    #         padding-bottom: 0 !important;  
+    #     }
+    #     
+    #     /* 绿色按钮样式 */
+    #     div.stButton > button:first-child[kind="primary"] {
+    #         background-color: #28a745;
+    #         border-color: #28a745;
+    #         color: white;
+    #     }
+    #     div.stButton > button:first-child[kind="primary"]:hover {
+    #         background-color: #218838;
+    #         border-color: #1e7e34;
+    #     }
+    # </style>
+    # """, unsafe_allow_html=True)
     # 醒目的功能切换提示（方便年长用户）
     st.warning("👆 点击左上角 **>>** 可切换到「查号台」")
     st.markdown("# 🚀 领导公务单自动生成器")
     st.markdown("<div style='font-size: 18px; margin: 0.3rem 0; line-height: 1.4;'>欢迎使用！本工具旨在帮您一键完成体卫艺政务活动申报。</div>", unsafe_allow_html=True)
-    # 微信用户提示
-    st.info("💡 **微信用户建议：** 为确保能顺利下载文件，建议点击右上角 ⋮ → 选择「在浏览器中打开」后使用本工具")
+
     # --- 蓝色提示框（固定显示）---
     st.info("""
     **💡 请一次性说清：** 时间、地点、会议名称、人数、对接人、领导、参加部门、背景及议程。
@@ -367,12 +369,7 @@ if mode == "📝 领导公务单自动生成器":
                 )
                 
                 # 显示文件名
-                st.success(f"🎉 **文件已生成！** 点击上方按钮下载")
-                
-                # 微信提示
-                st.markdown("---")
-                st.caption("👇 如果无法直接下载，请尝试：")
-                st.warning("⚠️ **微信用户：** 请点击右上角 **...** → **在浏览器打开**")
+                st.info(f"📄 **文件名：** `{filename}`")
             except Exception as e:
                 st.error(f"生成失败：{e}")
 
