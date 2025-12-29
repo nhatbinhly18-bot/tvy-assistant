@@ -227,7 +227,7 @@ if mode == "📝 领导公务单自动生成器":
                 current_date_str = datetime.now().strftime("%Y年%m月%d日")
                 weekday = datetime.now().strftime("%w")
                 
-                with st.spinner("正在解析要素并润色公文语言..."):
+                with st.spinner("正在解析要素并润色公文语言...（通常需要 5-15 秒，请耐心等待）"):
                     
                     full_prompt = f"""
                     你现在是龙华教育局资深笔杆子。请根据以下用户的大白话描述，解析出公文要素，并对【理由背景】和【议程】部分进行专业润色。
@@ -251,9 +251,10 @@ if mode == "📝 领导公务单自动生成器":
                     
                     try:
                         chat_completion = client.chat.completions.create(
-                            model="deepseek-ai/DeepSeek-V3", 
+                            model="Qwen/Qwen2.5-7B-Instruct",  # 更快的模型，速度提升 3-5 倍 
                             messages=[{"role": "user", "content": full_prompt}], 
-                            response_format={'type': 'json_object'}
+                            response_format={'type': 'json_object'},
+                            timeout=30  # 30秒超时
                         )
                         result = json.loads(chat_completion.choices[0].message.content)
                         
@@ -268,9 +269,12 @@ if mode == "📝 领导公务单自动生成器":
                         st.rerun()
                         
                     except json.JSONDecodeError:
-                         st.error("AI 解析返回格式有误，请尝试补充细节后重试。")
+                         st.error("❌ AI 解析返回格式有误，请尝试补充细节后重试。")
+                    except TimeoutError:
+                        st.error("⏱️ 请求超时（超过30秒），网络可能较慢。请稍后重试或简化输入内容。")
                     except Exception as e:
-                        st.error(f"解析出错：{e}")
+                        st.error(f"❌ 解析出错：{str(e)}")
+                        st.info("💡 **建议**：检查网络连接 / 简化输入内容 / 稍后重试")
 
     # --- 第二步：确认所有字段 ---
     elif st.session_state.step == 2 and st.session_state.parseddata_doc:
