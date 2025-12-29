@@ -191,6 +191,8 @@ if mode == "📝 领导公务单自动生成器":
     st.warning("👆 点击左上角 **>>** 可切换到「查号台」")
     st.markdown("# 🚀 领导公务单自动生成器")
     st.markdown("<div style='font-size: 18px; margin: 0.3rem 0; line-height: 1.4;'>欢迎使用！本工具旨在帮您一键完成体卫艺政务活动申报。</div>", unsafe_allow_html=True)
+    # 微信用户提示
+    st.info("💡 **微信用户建议：** 为确保能顺利下载文件，建议点击右上角 ⋮ → 选择「在浏览器中打开」后使用本工具")
     # --- 蓝色提示框（固定显示）---
     st.info("""
     **💡 请一次性说清：** 时间、地点、会议名称、人数、对接人、领导、参加部门、背景及议程。
@@ -359,14 +361,15 @@ if mode == "📝 领导公务单自动生成器":
                 
                 # 绿色下载按钮 - 直接下载
                 st.download_button(
-                    "� 确认无误，导出 Word", 
+                    "💾 确认无误，导出 Word", 
                     bio.getvalue(), 
                     filename, 
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                     type="primary"
                 )
                 # 显示文件名和下载成功提示
                 st.success(f"🎉 **文件已生成！** 点击上方按钮下载")
-                st.warning("⚠️ **微信用户请注意：** 微信内无法直接下载文件\n\n👉 **请点击右上角 ⋮ → 选择「在浏览器中打开」→ 再点击下载按钮**")
+                st.warning("⚠️ **微信用户请注意：** 微信内无法下载文件\n\n💡 **建议操作：**\n1. 记住您填写的内容\n2. 点击右上角 ⋮ → 选择「在浏览器中打开」\n3. 在浏览器中重新填写（很快）\n4. 点击下载按钮即可成功下载")
                 st.info(f"📄 **文件名：** `{filename}`")
             except Exception as e:
                 st.error(f"生成失败：{e}")
