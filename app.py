@@ -351,36 +351,46 @@ if mode == "📝 领导公务单自动生成器":
         col_final_back, col_final_down = st.columns([1, 2])
         with col_final_back:
             if st.button("⬅️ 返回上一步"):
-                 st.session_state.step = 2
+                 st.session_state.step = 1
                  st.rerun()
 
         with col_final_down:
-            # 准备文件数据
             try:
+                tpl = DocxTemplate("申报单模板.docx")
+                # 兼容时长类型
+                final_dr = dr if "小时" in str(dr) else f"{dr}小时"
+                
                 final_data = {
                     "title": t, "content": c, "agenda": a, "time": tm, 
-                    "duration": dr, "place": pl, "num": nm, "contact": ct, 
+                    "duration": final_dr, "place": pl, "num": nm, "contact": ct, 
                     "projector": pj, "dist_leader": dist_l, "bur_leader": bur_l, "others": oth
                 }
-                tpl = DocxTemplate("申报单模板.docx")
                 tpl.render(final_data)
                 bio = io.BytesIO()
                 tpl.save(bio)
                 
-                # 生成文件名: MMDD_领导_体卫艺劳科_标题.docx
+                # --- 文件名逻辑 ---
                 mmdd = datetime.now().strftime("%m%d")
-                # 优先取局领导，如果没有则取区领导，再没有则默认"领导"
-                leader_name = bur_l.strip() if bur_l.strip() else (dist_l.strip() if dist_l.strip() else "领导")
-                # 清理可能的多余字符（如顿号分隔的多个领导，只取第一个）
-                leader_name = leader_name.split('、')[0] if '、' in leader_name else leader_name
+                raw_leader = dist_l.strip() if dist_l.strip() else bur_l.strip()
+                if not raw_leader:
+                    leader_display = "领导"
+                else:
+                    first_name = raw_leader.split('、')[0] if '、' in raw_leader else raw_leader
+                    if "杨灵芝" in first_name or "灵芝" in first_name:
+                        leader_display = "灵芝主任"
+                    else:
+                        leader_display = first_name
                 
-                filename = f"{mmdd}_{leader_name}_体卫艺劳科_{t}.docx"
+                filename = f"{mmdd}-{leader_display}-体卫艺劳科-{t}.docx"
                 
-                # 绿色下载按钮 - 直接下载
+                # 🔴 关键修改：把 mime 改成 'application/octet-stream'
+                # 这会强制微信认为这是一个"未知文件"，从而必须弹出下载框，而不是尝试预览
                 st.download_button(
-                    "💾 确认无误，导出 Word", 
-                    bio.getvalue(), 
-                    filename
+                    label="💾 确认无误，导出 Word", 
+                    data=bio.getvalue(), 
+                    file_name=filename, 
+                    mime="application/octet-stream",  # 👈 改了这里，强制弹窗
+                    type="primary"
                 )
 
             except Exception as e:
