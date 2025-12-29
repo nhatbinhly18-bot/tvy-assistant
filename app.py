@@ -140,27 +140,39 @@ if mode == "📝 领导公务单自动生成器":
     # Custom CSS for compact layout
     st.markdown("""
     <style>
-        /* 减少整体间距 */
+        /* 完全去除所有间距 */
         .main .block-container {
-            padding-top: 1rem;
-            padding-bottom: 1rem;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
         }
         
-        /* 减少标题间距 */
-        h1 {
-            margin-bottom: 0.3rem !important;
+        /* 标题完全无间距 */
+        h1, h2, h3 {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
         }
         
-        /* 减少段落间距 */
+        /* 段落完全无间距 */
         p {
-            margin-bottom: 0.3rem !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
         }
         
-        /* 减少 info/warning 框间距 */
+        /* info/warning 框最小间距 */
         .stAlert {
-            margin-bottom: 0.5rem !important;
-            margin-top: 0.5rem !important;
+            margin-top: 0.2rem !important;
+            margin-bottom: 0.2rem !important;
             padding: 0.5rem 1rem !important;
+        }
+        
+        /* 所有元素间距为0 */
+        .element-container {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
         }
         
         /* 绿色按钮样式 */
@@ -175,20 +187,16 @@ if mode == "📝 领导公务单自动生成器":
         }
     </style>
     """, unsafe_allow_html=True)
-    
     # 醒目的功能切换提示（方便年长用户）
     st.warning("👆 点击左上角 **>>** 可切换到「查号台」")
-    
     st.markdown("# 🚀 领导公务单自动生成器")
-    st.write("欢迎使用！本工具旨在帮您一键完成体卫艺政务活动申报。")
-    
+    st.markdown("<h3 style='font-size: 20px; margin-top: 0; margin-bottom: 0;'>欢迎使用！本工具旨在帮您一键完成体卫艺政务活动申报。</h3>", unsafe_allow_html=True)
     # --- 蓝色提示框（固定显示）---
     st.info("""
     **💡 请一次性说清：** 时间、地点、会议名称、人数、对接人、领导、参加部门、背景及议程。
     
     **参考范例：** 明天上午10点在二楼多功能厅有个生涯教育座谈会，大概20人，孙沛对接，时长1小时，邀请灵芝主任参加
     """)
-    
     # Custom CSS for Green Button
     st.markdown("""
     <style>
