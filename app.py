@@ -359,12 +359,11 @@ if mode == "📝 领导公务单自动生成器":
                 
                 filename = f"{mmdd}_{leader_name}_体卫艺劳科_{t}.docx"
                 
-                # 绿色下载按钮 - 直接下载 (还原为默认样式，测试微信兼容性)
+                # 绿色下载按钮 - 直接下载
                 st.download_button(
                     "💾 确认无误，导出 Word", 
                     bio.getvalue(), 
-                    filename,
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    filename
                 )
                 
                 # 显示文件名
