@@ -190,7 +190,7 @@ if mode == "📝 领导公务单自动生成器":
     # 醒目的功能切换提示（方便年长用户）
     st.warning("👆 点击左上角 **>>** 可切换到「查号台」")
     st.markdown("# 🚀 领导公务单自动生成器")
-    st.markdown("<h3 style='font-size: 20px; margin-top: 0; margin-bottom: 0;'>欢迎使用！本工具旨在帮您一键完成体卫艺政务活动申报。</h3>", unsafe_allow_html=True)
+    st.markdown("<div style='font-size: 18px; margin: 0.3rem 0; line-height: 1.4;'>欢迎使用！本工具旨在帮您一键完成体卫艺政务活动申报。</div>", unsafe_allow_html=True)
     # --- 蓝色提示框（固定显示）---
     st.info("""
     **💡 请一次性说清：** 时间、地点、会议名称、人数、对接人、领导、参加部门、背景及议程。
@@ -360,6 +360,8 @@ if mode == "📝 领导公务单自动生成器":
                     filename, 
                     type="primary"
                 )
+                # 微信用户提示
+                st.info("💡 **微信用户请注意：** 如无法下载，请点击右上角 **...** → 选择 **在浏览器中打开**")
             except Exception as e:
                 st.error(f"生成失败：{e}")
 
