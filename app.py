@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 from docxtpl import DocxTemplate
@@ -139,55 +138,58 @@ with st.sidebar:
 # ----------------- 模块一：领导公务单生成器 -----------------
 if mode == "📝 领导公务单自动生成器":
     # Custom CSS for compact layout
-    st.markdown("""
-    <style>
-        /* 完全去除所有间距 */
-        .main .block-container {
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
-        }
-        
-        /* 标题完全无间距 */
-        h1, h2, h3 {
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-        }
-        
-        /* 段落完全无间距 */
-        p {
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-        }
-        
-        /* info/warning 框最小间距 */
-        .stAlert {
-            margin-top: 0.2rem !important;
-            margin-bottom: 0.2rem !important;
-            padding: 0.5rem 1rem !important;
-        }
-        
-        /* 所有元素间距为0 */
-        .element-container {
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
-        }
-        
-        /* 绿色按钮样式 */
-        div.stButton > button:first-child[kind="primary"] {
-            background-color: #28a745;
-            border-color: #28a745;
-            color: white;
-        }
-        div.stButton > button:first-child[kind="primary"]:hover {
-            background-color: #218838;
-            border-color: #1e7e34;
-        }
-    </style>
-    """, unsafe_allow_html=True)
+    # Custom CSS for compact layout
+    # st.markdown("""
+    # <style>
+    #     /* 完全去除所有间距 */
+    #     .main .block-container {
+    #         padding-top: 0.5rem;
+    #         padding-bottom: 0.5rem;
+    #     }
+    #     
+    #     /* 标题完全无间距 */
+    #     h1, h2, h3 {
+    #         margin-top: 0 !important;
+    #         margin-bottom: 0 !important;
+    #         padding-top: 0 !important;
+    #         padding-bottom: 0 !important;
+    #     }
+    #     
+    #     /* 段落完全无间距 */
+    #     p {
+    #         margin-top: 0 !important;
+    #         margin-bottom: 0 !important;
+    #         padding-top: 0 !important;
+    #         padding-bottom: 0 !important;
+    #     }
+    #     
+    #     /* info/warning 框最小间距 */
+    #     .stAlert {
+    #         margin-top: 0.2rem !important;
+    #         margin-bottom: 0.2rem !important;
+    #         padding: 0.5rem 1rem !important;
+    #     }
+    #     
+    #     /* 所有元素间距为0 */
+    #     .element-container {
+    #         margin-top: 0 !important;
+    #         margin-bottom: 0 !important;
+    #         padding-top: 0 !important;
+    #         padding-bottom: 0 !important;  
+    #     }
+    #     
+    #     /* 绿色按钮样式 */
+    #     div.stButton > button:first-child[kind="primary"] {
+    #         background-color: #28a745;
+    #         border-color: #28a745;
+    #         color: white;
+    #     }
+    #     div.stButton > button:first-child[kind="primary"]:hover {
+    #         background-color: #218838;
+    #         border-color: #1e7e34;
+    #     }
+    # </style>
+    # """, unsafe_allow_html=True)
     # 醒目的功能切换提示（方便年长用户）
     st.warning("👆 点击左上角 **>>** 可切换到「查号台」")
     st.markdown("# 🚀 领导公务单自动生成器")
@@ -231,21 +233,36 @@ if mode == "📝 领导公务单自动生成器":
                 
                 with st.spinner("正在解析要素并润色公文语言...（通常需要 5-15 秒，请耐心等待）"):
                     
+                    # 标准人名库（用于纠正语音转文字的谐音错误）
+                    name_corrections = {
+                        "林芝": "杨灵芝", "杨林芝": "杨灵芝",
+                        "陈海湾": "陈海万", "陈海完": "陈海万",
+                        "尹泽力": "尹泽利", "尹则利": "尹泽利",
+                        "文量方": "文良方", "温良方": "文良方",
+                        "刘兵": "刘冰",
+                        "梁永育": "梁永誉",
+                        "方梦仪": "方梦懿"
+                    }
+                    
                     full_prompt = f"""
                     你现在是龙华教育局资深笔杆子。请根据以下用户的大白话描述，解析出公文要素，并对【理由背景】和【议程】部分进行专业润色。
                     
                     【当前日期参考】：今天是 {current_date_str} (星期{weekday})。
                     【用户输入】：{user_input}
                     
+                    【标准人名库】（请优先匹配）：
+                    杨灵芝、尹泽利、文良方、孙沛、刘冰、杨帆、陈海万、路旭阳、王轩、王燕、李桂情、甘月琴、方梦懿、吴正光、李长生、梁永誉、刘喜菊
+                    
                     【解析与润色要求】：
-                    1. **content (理由背景)**：将用户的背景描述转化为"为落实...要求，推进...发展"等公文规范用语。只有动宾结构和语序调整，严禁杜撰。
-                    2. **agenda (详细议程)**：**固定输出以下三项，顺序不可变**：["专题汇报", "座谈交流", "领导讲话"]。**严禁添加、删除或修改这三项**，无论用户输入什么。
-                    3. **time (时间)**：必须将"明天"、"后天"、"周三"等相对时间**计算为具体的年月日**（格式：YYYY年MM月DD日 HH:MM）。禁止直接写"明天"或"下周"。
-                    4. **duration (时长)**：统一计算为"X小时"或"X.5小时"（如1.5小时），**不要用分钟**。
-                    5. **contact (公务对接人)**：提取人名，若无则默认为"孙沛"。
-                    6. **dist_leader (区领导)** / **bur_leader (局领导)**：准确提取拟请出席的领导职务/姓名（如"灵芝主任"）。**严禁添加"教育发展中心"等部门前缀**，直接写姓名加职务即可。
-                    7. **others (参加单位)**：提取建议参加的部门或单位。
-                    8. **其他字段**：title(活动名称), place(地点), num(人数), projector(投影仪: ☑是/☐否)。
+                    1. **人名纠错**：如果用户输入的人名与标准人名库相似（如"林芝"应为"杨灵芝"，"陈海湾"应为"陈海万"），请自动纠正为标准名字。
+                    2. **content (理由背景)**：将用户的背景描述转化为"为落实...要求，推进...发展"等公文规范用语。只有动宾结构和语序调整，严禁杜撰。
+                    3. **agenda (详细议程)**：**固定输出以下三项，顺序不可变**：["专题汇报", "座谈交流", "领导讲话"]。**严禁添加、删除或修改这三项**，无论用户输入什么。
+                    4. **time (时间)**：必须将"明天"、"后天"、"周三"等相对时间**计算为具体的年月日**（格式：YYYY年MM月DD日 HH:MM）。禁止直接写"明天"或"下周"。
+                    5. **duration (时长)**：统一计算为"X小时"或"X.5小时"（如1.5小时），**不要用分钟**。
+                    6. **contact (公务对接人)**：提取人名（优先从标准人名库匹配），若无则默认为"孙沛"。
+                    7. **dist_leader (区领导)** / **bur_leader (局领导)**：准确提取拟请出席的领导职务/姓名（如"灵芝主任"应识别为"杨灵芝"）。**严禁添加"教育发展中心"等部门前缀**，直接写姓名加职务即可。
+                    8. **others (参加单位)**：提取建议参加的部门或单位。
+                    9. **其他字段**：title(活动名称), place(地点), num(人数), projector(投影仪: ☑是/☐否)。
                     
                     必须以 JSON 格式严格输出，包含以下字段：
                     title, content, agenda, time, place, num, contact, projector, duration, dist_leader, bur_leader, others。
@@ -363,14 +380,9 @@ if mode == "📝 领导公务单自动生成器":
                 st.download_button(
                     "💾 确认无误，导出 Word", 
                     bio.getvalue(), 
-                    filename, 
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    type="primary"
+                    filename
                 )
-                # 显示文件名和下载成功提示
-                st.success(f"🎉 **文件已生成！** 点击上方按钮下载")
-                st.warning("⚠️ **微信用户请注意：** 微信内无法下载文件\n\n💡 **建议操作：**\n1. 记住您填写的内容\n2. 点击右上角 ⋮ → 选择「在浏览器中打开」\n3. 在浏览器中重新填写（很快）\n4. 点击下载按钮即可成功下载")
-                st.info(f"📄 **文件名：** `{filename}`")
+
             except Exception as e:
                 st.error(f"生成失败：{e}")
 
