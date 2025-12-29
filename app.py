@@ -137,6 +137,45 @@ with st.sidebar:
 
 # ----------------- 模块一：领导公务单生成器 -----------------
 if mode == "📝 领导公务单自动生成器":
+    # Custom CSS for compact layout
+    st.markdown("""
+    <style>
+        /* 减少整体间距 */
+        .main .block-container {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        
+        /* 减少标题间距 */
+        h1 {
+            margin-bottom: 0.3rem !important;
+        }
+        
+        /* 减少段落间距 */
+        p {
+            margin-bottom: 0.3rem !important;
+        }
+        
+        /* 减少 info/warning 框间距 */
+        .stAlert {
+            margin-bottom: 0.5rem !important;
+            margin-top: 0.5rem !important;
+            padding: 0.5rem 1rem !important;
+        }
+        
+        /* 绿色按钮样式 */
+        div.stButton > button:first-child[kind="primary"] {
+            background-color: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+        div.stButton > button:first-child[kind="primary"]:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
     # 醒目的功能切换提示（方便年长用户）
     st.warning("👆 点击左上角 **>>** 可切换到「查号台」")
     
