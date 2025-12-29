@@ -36,18 +36,57 @@ st.markdown("""
     
     /* 移动端字体优化 */
     @media (max-width: 768px) {
+        /* 基础字体减小 */
         html, body, [class*="css"] {
             font-size: 14px !important;
         }
-        h1 { font-size: 1.5rem !important; margin-bottom: 0.5rem !important; }
-        h2 { font-size: 1.25rem !important; margin-bottom: 0.5rem !important; }
-        h3 { font-size: 1.1rem !important; margin-bottom: 0.5rem !important; }
-        [data-testid="stWidgetLabel"] { font-size: 0.85rem !important; }
-        button { font-size: 0.9rem !important; padding: 0.4rem 0.8rem !important; }
-        textarea, input { font-size: 0.9rem !important; }
-        [data-testid="stSidebar"] { font-size: 0.85rem !important; }
-        .element-container { margin-bottom: 0.5rem !important; }
-        [data-testid="stExpander"] summary { font-size: 0.9rem !important; }
+        
+        /* 标题字体调整 */
+        h1 {
+            font-size: 1.5rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+        
+        h2 {
+            font-size: 1.25rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+        
+        h3 {
+            font-size: 1.1rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+        
+        /* 输入框标签字体 */
+        [data-testid="stWidgetLabel"] {
+            font-size: 0.85rem !important;
+        }
+        
+        /* 按钮字体 */
+        button {
+            font-size: 0.9rem !important;
+            padding: 0.4rem 0.8rem !important;
+        }
+        
+        /* 文本区域和输入框 */
+        textarea, input {
+            font-size: 0.9rem !important;
+        }
+        
+        /* 侧边栏字体 */
+        [data-testid="stSidebar"] {
+            font-size: 0.85rem !important;
+        }
+        
+        /* 减小元素间距 */
+        .element-container {
+            margin-bottom: 0.5rem !important;
+        }
+        
+        /* Expander 标题 */
+        [data-testid="stExpander"] summary {
+            font-size: 0.9rem !important;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -64,8 +103,9 @@ if "contacts_authenticated" not in st.session_state:
     st.session_state.contacts_authenticated = False
 if "parseddata_doc" not in st.session_state:
     st.session_state.parseddata_doc = None
+# 新增：两步流程的状态管理
 if "step" not in st.session_state:
-    st.session_state.step = 1 
+    st.session_state.step = 1  # 1=输入, 2=确认润色, 3=确认字段
 if "polished_text" not in st.session_state:
     st.session_state.polished_text = None
 if "original_input" not in st.session_state:
@@ -74,17 +114,22 @@ if "original_input" not in st.session_state:
 # 3. 侧边栏导航
 with st.sidebar:
     st.header("⚙️ 体卫艺办公助手")
-    st.success("● AI 核心已连接")
+    st.success("● AI 核心已连接") # Changed from "逻辑已加载" to match image closer
     
     st.info("""
     **💡 使用小提示：** 本助手集成两大核心功能：
+    
     1. **公务单生成**：智能解析文字生成 Word。
     2. **学校查号台**：全区学校通讯录快速查询。
+    
+    您可以通过下方的 **“功能切换”** 选项随时跳转。
     """)
     st.caption("维护者：孙沛 | 龙华区教育局体卫艺专用")
     st.divider()
+    
     mode = st.radio("功能切换：", ["📝 领导公务单自动生成器", "🔍 龙华学校查号台"])
     
+    st.write("") # Spacer
     if st.button("🔒 退出并锁定"):
         st.session_state.contacts_authenticated = False
         st.session_state.parseddata_doc = None
@@ -92,26 +137,88 @@ with st.sidebar:
 
 # ----------------- 模块一：领导公务单生成器 -----------------
 if mode == "📝 领导公务单自动生成器":
+    # Custom CSS for compact layout
+    # Custom CSS for compact layout
+    # st.markdown("""
+    # <style>
+    #     /* 完全去除所有间距 */
+    #     .main .block-container {
+    #         padding-top: 0.5rem;
+    #         padding-bottom: 0.5rem;
+    #     }
+    #     
+    #     /* 标题完全无间距 */
+    #     h1, h2, h3 {
+    #         margin-top: 0 !important;
+    #         margin-bottom: 0 !important;
+    #         padding-top: 0 !important;
+    #         padding-bottom: 0 !important;
+    #     }
+    #     
+    #     /* 段落完全无间距 */
+    #     p {
+    #         margin-top: 0 !important;
+    #         margin-bottom: 0 !important;
+    #         padding-top: 0 !important;
+    #         padding-bottom: 0 !important;
+    #     }
+    #     
+    #     /* info/warning 框最小间距 */
+    #     .stAlert {
+    #         margin-top: 0.2rem !important;
+    #         margin-bottom: 0.2rem !important;
+    #         padding: 0.5rem 1rem !important;
+    #     }
+    #     
+    #     /* 所有元素间距为0 */
+    #     .element-container {
+    #         margin-top: 0 !important;
+    #         margin-bottom: 0 !important;
+    #         padding-top: 0 !important;
+    #         padding-bottom: 0 !important;  
+    #     }
+    #     
+    #     /* 绿色按钮样式 */
+    #     div.stButton > button:first-child[kind="primary"] {
+    #         background-color: #28a745;
+    #         border-color: #28a745;
+    #         color: white;
+    #     }
+    #     div.stButton > button:first-child[kind="primary"]:hover {
+    #         background-color: #218838;
+    #         border-color: #1e7e34;
+    #     }
+    # </style>
+    # """, unsafe_allow_html=True)
+    # 醒目的功能切换提示（方便年长用户）
     st.warning("👆 点击左上角 **>>** 可切换到「查号台」")
     st.markdown("# 🚀 领导公务单自动生成器")
     st.markdown("<div style='font-size: 18px; margin: 0.3rem 0; line-height: 1.4;'>欢迎使用！本工具旨在帮您一键完成体卫艺政务活动申报。</div>", unsafe_allow_html=True)
 
+    # --- 蓝色提示框（固定显示）---
     st.info("""
     **💡 请一次性说清：** 时间、地点、会议名称、人数、对接人、领导、参加部门、背景及议程。
+    
     **参考范例：** 明天上午10点在二楼多功能厅有个生涯教育座谈会，大概20人，孙沛对接，时长1小时，邀请灵芝主任参加
     """)
-
-    # 绿色按钮样式
+    # Custom CSS for Green Button
     st.markdown("""
     <style>
         div.stButton > button:first-child[kind="primary"] {
-            background-color: #28a745; border-color: #28a745; color: white;
+            background-color: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+        div.stButton > button:first-child[kind="primary"]:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
         }
     </style>
     """, unsafe_allow_html=True)
 
+    # --- 第一步：输入与润色 ---
     if st.session_state.step == 1:
-        user_input = st.text_area("✍️ 请输入活动描述：", height=150, placeholder="请在此粘贴或输入内容...", key="input_doc")
+        user_input = st.text_area("✍️ 请输入活动描述（支持语音转文字复制粘贴）：", height=150, placeholder="请在此粘贴或输入内容...", key="input_doc")
         
         if st.button("✨ 立即智能填表并生成 Word", type="primary"):
             if not user_input:
@@ -119,61 +226,136 @@ if mode == "📝 领导公务单自动生成器":
             else:
                 client = OpenAI(api_key=MY_API_KEY, base_url=BASE_URL)
                 st.session_state.original_input = user_input
+                
+                # 获取当前日期用于计算相对时间
                 current_date_str = datetime.now().strftime("%Y年%m月%d日")
                 weekday = datetime.now().strftime("%w")
                 
-                with st.spinner("正在解析要素..."):
-                    full_prompt = f"你现在是龙华教育局资深笔杆子。根据输入解析公文要素：{user_input}。今天是{current_date_str}。请严格按 JSON 格式返回字段：title, content, agenda, time, place, num, contact, projector, duration, dist_leader, bur_leader, others。"
+                with st.spinner("正在解析要素并润色公文语言...（通常需要 5-15 秒，请耐心等待）"):
+                    
+                    # 标准人名库（用于纠正语音转文字的谐音错误）
+                    name_corrections = {
+                        "林芝": "杨灵芝", "杨林芝": "杨灵芝",
+                        "陈海湾": "陈海万", "陈海完": "陈海万",
+                        "尹泽力": "尹泽利", "尹则利": "尹泽利",
+                        "文量方": "文良方", "温良方": "文良方",
+                        "刘兵": "刘冰",
+                        "梁永育": "梁永誉",
+                        "方梦仪": "方梦懿"
+                    }
+                    
+                    full_prompt = f"""
+                    你现在是龙华教育局资深笔杆子。请根据以下用户的大白话描述，解析出公文要素，并对【理由背景】和【议程】部分进行专业润色。
+                    
+                    【当前日期参考】：今天是 {current_date_str} (星期{weekday})。
+                    【用户输入】：{user_input}
+                    
+                    【标准人名库】（请优先匹配）：
+                    杨灵芝、尹泽利、文良方、孙沛、刘冰、杨帆、陈海万、路旭阳、王轩、王燕、李桂情、甘月琴、方梦懿、吴正光、李长生、梁永誉、刘喜菊
+                    
+                    【解析与润色要求】：
+                    1. **人名纠错**：如果用户输入的人名与标准人名库相似（如"林芝"应为"杨灵芝"，"陈海湾"应为"陈海万"），请自动纠正为标准名字。
+                    2. **content (理由背景)**：将用户的背景描述转化为"为落实...要求，推进...发展"等公文规范用语。只有动宾结构和语序调整，严禁杜撰。
+                    3. **agenda (详细议程)**：**固定输出以下三项，顺序不可变**：["专题汇报", "座谈交流", "领导讲话"]。**严禁添加、删除或修改这三项**，无论用户输入什么。
+                    4. **time (时间)**：必须将"明天"、"后天"、"周三"等相对时间**计算为具体的年月日**（格式：YYYY年MM月DD日 HH:MM）。禁止直接写"明天"或"下周"。
+                    5. **duration (时长)**：统一计算为"X小时"或"X.5小时"（如1.5小时），**不要用分钟**。
+                    6. **contact (公务对接人)**：提取人名（优先从标准人名库匹配），若无则默认为"孙沛"。
+                    7. **dist_leader (区领导)** / **bur_leader (局领导)**：准确提取拟请出席的领导职务/姓名（如"灵芝主任"应识别为"杨灵芝"）。**严禁添加"教育发展中心"等部门前缀**，直接写姓名加职务即可。
+                    8. **others (参加单位)**：提取建议参加的部门或单位。
+                    9. **其他字段**：title(活动名称), place(地点), num(人数), projector(投影仪: ☑是/☐否)。
+                    
+                    必须以 JSON 格式严格输出，包含以下字段：
+                    title, content, agenda, time, place, num, contact, projector, duration, dist_leader, bur_leader, others。
+                    """
+                    
                     try:
                         chat_completion = client.chat.completions.create(
-                            model="Qwen/Qwen2.5-7B-Instruct",
-                            messages=[{"role": "user", "content": full_prompt}],
-                            response_format={'type': 'json_object'}
+                            model="Qwen/Qwen2.5-7B-Instruct",  # 更快的模型，速度提升 3-5 倍 
+                            messages=[{"role": "user", "content": full_prompt}], 
+                            response_format={'type': 'json_object'},
+                            timeout=30  # 30秒超时
                         )
                         result = json.loads(chat_completion.choices[0].message.content)
+                        
+                        # 字段健壮性处理
+                        required_fields = ["title", "content", "agenda", "time", "place", "num", "contact"]
+                        for field in required_fields:
+                            if field not in result:
+                                result[field] = ""
+                        
                         st.session_state.parseddata_doc = result
-                        st.session_state.step = 2
+                        st.session_state.step = 2  # 跳到确认表单
                         st.rerun()
+                        
+                    except json.JSONDecodeError:
+                         st.error("❌ AI 解析返回格式有误，请尝试补充细节后重试。")
+                    except TimeoutError:
+                        st.error("⏱️ 请求超时（超过30秒），网络可能较慢。请稍后重试或简化输入内容。")
                     except Exception as e:
-                        st.error(f"解析出错：{e}")
+                        st.error(f"❌ 解析出错：{str(e)}")
+                        st.info("💡 **建议**：检查网络连接 / 简化输入内容 / 稍后重试")
 
+    # --- 第二步：确认所有字段 ---
     elif st.session_state.step == 2 and st.session_state.parseddata_doc:
         d = st.session_state.parseddata_doc
         with st.container(border=True):
             st.markdown("### 🧐 核心要素预览与微调")
+            st.markdown("**申报部门：体卫艺劳科**") # 假设固定
+            
             t = st.text_input("📝 政务活动名称", d.get("title", ""))
             c = st.text_area("📄 政务活动申请理由、背景", d.get("content", ""), height=80)
             
+            # 处理 agenda 可能是 list 的情况
             agenda_val = d.get("agenda", "")
-            if isinstance(agenda_val, list): agenda_val = "\n".join([f"{i+1}. {item}" for i, item in enumerate(agenda_val)])
-            if not agenda_val: agenda_val = "1. 专题汇报\n2. 座谈交流\n3. 领导讲话"
+            if isinstance(agenda_val, list):
+                agenda_val = "\n".join([f"{i+1}. {item}" for i, item in enumerate(agenda_val)])
+            # 如果没有议程，使用默认值
+            if not agenda_val:
+                agenda_val = "1. 专题汇报\n2. 座谈交流\n3. 领导讲话"
             a = st.text_area("📋 议程", agenda_val, height=120)
             
             col1, col2 = st.columns(2)
             with col1:
                 tm = st.text_input("⏰ 时间", d.get("time", ""))
-                dr = st.text_input("⏳ 会议时长", d.get("duration", "1小时"))
+                
+                # 确保时长有单位
+                duration_val = d.get("duration", "1小时")
+                # 转换为字符串以避免类型错误
+                duration_val = str(duration_val) if duration_val else "1小时"
+                if "小时" not in duration_val:
+                    duration_val = f"{duration_val}小时"
+                dr = st.text_input("⏳ 会议时长", duration_val)
+                
             with col2:
-                st.caption("时间可否调整：☑否")
+                # Mockup checkbox visualization for "可否调整" (visual only for now)
+                st.caption("时间可否调整：☑否") 
                 ct = st.text_input("👤 公务对接人", d.get("contact", "孙沛"))
 
             col3, col4, col5 = st.columns([2, 1, 1])
-            with col3: pl = st.text_input("📍 地点", d.get("place", ""))
-            with col4: nm = st.text_input("👥 人数", d.get("num", ""))
-            with col5: pj = st.selectbox("📽️ 投影仪", ["☑使用", "☐不使用"], index=0 if "是" in str(d.get("projector")) else 1)
+            with col3:
+                pl = st.text_input("📍 地点", d.get("place", ""))
+            with col4:
+                nm = st.text_input("👥 人数", d.get("num", ""))
+            with col5:
+                pj = st.selectbox("📽️ 投影仪", ["☑使用", "☐不使用"], index=0 if "是" in str(d.get("projector")) else 1)
             
             st.markdown("---")
             dist_l = st.text_input("1. 拟请出席的区领导", d.get("dist_leader", ""))
             bur_l = st.text_input("2. 拟请办公室协调出席的局领导", d.get("bur_leader", ""))
+            
+            st.markdown("---")
             oth = st.text_input("建议参加单位(部门)", d.get("others") or "体卫艺劳科")
+            
+            st.caption("说明：此表请于政务活动前一周星期四下班前交办公室登记汇总。")
 
         col_final_back, col_final_down = st.columns([1, 2])
         with col_final_back:
             if st.button("⬅️ 返回上一步"):
-                st.session_state.step = 1
-                st.rerun()
+                 st.session_state.step = 2
+                 st.rerun()
 
         with col_final_down:
+            # 准备文件数据
             try:
                 final_data = {
                     "title": t, "content": c, "agenda": a, "time": tm, 
@@ -184,37 +366,27 @@ if mode == "📝 领导公务单自动生成器":
                 tpl.render(final_data)
                 bio = io.BytesIO()
                 tpl.save(bio)
-
-                # --- 核心修改：文件名命名逻辑 ---
-                mmdd = datetime.now().strftime("%m%d") 
-                # 优先级：区领导 > 局领导
-                raw_leader = dist_l.strip() if dist_l.strip() else bur_l.strip()
                 
-                if not raw_leader:
-                    leader_display = "领导"
-                else:
-                    # 提取名字
-                    first_name = raw_leader.split('、')[0] if '、' in raw_leader else raw_leader
-                    # 杨灵芝 特殊映射
-                    if "杨灵芝" in first_name or "灵芝" in first_name:
-                        leader_display = "灵芝主任"
-                    else:
-                        leader_display = first_name
-
-                # 最终格式：1229-灵芝主任-体卫艺劳科-活动名称.docx
-                filename = f"{mmdd}-{leader_display}-体卫艺劳科-{t}.docx"
-                # ------------------------------
-
+                # 生成文件名: MMDD_领导_体卫艺劳科_标题.docx
+                mmdd = datetime.now().strftime("%m%d")
+                # 优先取局领导，如果没有则取区领导，再没有则默认"领导"
+                leader_name = bur_l.strip() if bur_l.strip() else (dist_l.strip() if dist_l.strip() else "领导")
+                # 清理可能的多余字符（如顿号分隔的多个领导，只取第一个）
+                leader_name = leader_name.split('、')[0] if '、' in leader_name else leader_name
+                
+                filename = f"{mmdd}_{leader_name}_体卫艺劳科_{t}.docx"
+                
+                # 绿色下载按钮 - 直接下载
                 st.download_button(
-                    label="💾 确认无误，导出 Word",
-                    data=bio.getvalue(),
-                    file_name=filename,
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    "💾 确认无误，导出 Word", 
+                    bio.getvalue(), 
+                    filename
                 )
+
             except Exception as e:
                 st.error(f"生成失败：{e}")
 
-# 🔍 龙华学校查号台 (此处省略后续模块逻辑，保持原样即可)
+
 # ----------------- 模块二：龙华学校查号台 -----------------
 else:
     st.markdown("### 🔍 龙华学校查号台")
