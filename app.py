@@ -359,18 +359,27 @@ if mode == "📝 领导公务单自动生成器":
                 
                 filename = f"{mmdd}_{leader_name}_体卫艺劳科_{t}.docx"
                 
-                # 绿色下载按钮 - 直接下载
+                # 绿色下载按钮 - 直接下载 (回归旧版本写法)
                 st.download_button(
                     "💾 确认无误，导出 Word", 
                     bio.getvalue(), 
                     filename, 
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                     type="primary"
                 )
-                # 显示文件名和下载成功提示
+                
+                # 备用下载方案：生成一个原生链接
+                import base64
+                b64 = base64.b64encode(bio.getvalue()).decode()
+                href = f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64}" download="{filename}" style="color: blue; text-decoration: underline;">👉 点我备用下载 (如果按钮没反应)</a>'
+                st.markdown(href, unsafe_allow_html=True)
+                
+                # 显示文件名
                 st.success(f"🎉 **文件已生成！** 点击上方按钮下载")
-                st.warning("⚠️ **微信用户请注意：** 微信内无法下载文件\n\n💡 **建议操作：**\n1. 记住您填写的内容\n2. 点击右上角 ⋮ → 选择「在浏览器中打开」\n3. 在浏览器中重新填写（很快）\n4. 点击下载按钮即可成功下载")
-                st.info(f"📄 **文件名：** `{filename}`")
+                
+                # 微信提示
+                st.markdown("---")
+                st.caption("👇 如果无法直接下载，请尝试：")
+                st.warning("⚠️ **微信用户：** 请点击右上角 **...** → **在浏览器打开**")
             except Exception as e:
                 st.error(f"生成失败：{e}")
 
