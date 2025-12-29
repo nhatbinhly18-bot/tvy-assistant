@@ -351,37 +351,30 @@ if mode == "📝 领导公务单自动生成器":
         col_final_back, col_final_down = st.columns([1, 2])
         with col_final_back:
             if st.button("⬅️ 返回上一步"):
-                 st.session_state.step = 2
-                 st.rerun()
+                st.session_state.step = 1 # 修改为返回第一步
+                st.rerun()
 
-       with col_final_down:
+        with col_final_down:
             try:
-                # 准备填入模板的数据
                 final_data = {
                     "title": t, "content": c, "agenda": a, "time": tm, 
                     "duration": dr, "place": pl, "num": nm, "contact": ct, 
                     "projector": pj, "dist_leader": dist_l, "bur_leader": bur_l, "others": oth
                 }
-                # 加载 Word 模板并生成
                 tpl = DocxTemplate("申报单模板.docx")
                 tpl.render(final_data)
                 bio = io.BytesIO()
                 tpl.save(bio)
-                
-                # 自动生成文件名
                 mmdd = datetime.now().strftime("%m%d")
                 leader_name = bur_l.strip() if bur_l.strip() else (dist_l.strip() if dist_l.strip() else "领导")
                 leader_name = leader_name.split('、')[0] if '、' in leader_name else leader_name
                 filename = f"{mmdd}_{leader_name}_体卫艺劳科_{t}.docx"
                 
-                # 【核心修改点】：删掉黑色弹窗，直接使用原生下载按钮
-                # 这样点击时，微信会自动触发那个“白色系统弹窗”
                 st.download_button(
                     label="💾 确认无误，导出 Word",
                     data=bio.getvalue(),
                     file_name=filename,
                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 )
-
             except Exception as e:
                 st.error(f"生成失败：{e}")
