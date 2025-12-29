@@ -354,64 +354,34 @@ if mode == "📝 领导公务单自动生成器":
                  st.session_state.step = 2
                  st.rerun()
 
-        with col_final_down:
-            # 准备文件数据
+       with col_final_down:
             try:
+                # 准备填入模板的数据
                 final_data = {
                     "title": t, "content": c, "agenda": a, "time": tm, 
                     "duration": dr, "place": pl, "num": nm, "contact": ct, 
                     "projector": pj, "dist_leader": dist_l, "bur_leader": bur_l, "others": oth
                 }
+                # 加载 Word 模板并生成
                 tpl = DocxTemplate("申报单模板.docx")
                 tpl.render(final_data)
                 bio = io.BytesIO()
                 tpl.save(bio)
                 
-                # 生成文件名: MMDD_领导_体卫艺劳科_标题.docx
+                # 自动生成文件名
                 mmdd = datetime.now().strftime("%m%d")
-                # 优先取局领导，如果没有则取区领导，再没有则默认"领导"
                 leader_name = bur_l.strip() if bur_l.strip() else (dist_l.strip() if dist_l.strip() else "领导")
-                # 清理可能的多余字符（如顿号分隔的多个领导，只取第一个）
                 leader_name = leader_name.split('、')[0] if '、' in leader_name else leader_name
-                
                 filename = f"{mmdd}_{leader_name}_体卫艺劳科_{t}.docx"
                 
-                # 绿色下载按钮 - 直接下载
+                # 【核心修改点】：删掉黑色弹窗，直接使用原生下载按钮
+                # 这样点击时，微信会自动触发那个“白色系统弹窗”
                 st.download_button(
-                    "💾 确认无误，导出 Word", 
-                    bio.getvalue(), 
-                    filename
+                    label="💾 确认无误，导出 Word",
+                    data=bio.getvalue(),
+                    file_name=filename,
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 )
 
             except Exception as e:
                 st.error(f"生成失败：{e}")
-
-
-# ----------------- 模块二：龙华学校查号台 -----------------
-else:
-    st.markdown("### 🔍 龙华学校查号台")
-    if not st.session_state.contacts_authenticated:
-        st.info("🔒 为了数据安全，访问通讯录需要授权。")
-        pwd = st.text_input("请输入授权密码", type="password", help="请向管理员获取密码")
-        if st.button("验证登录", type="primary"):
-            if pwd == CONTACT_PASSWORD:
-                st.session_state.contacts_authenticated = True
-                st.rerun()
-            else:
-                st.error("密码错误，请重试。")
-        st.stop()
-
-    @st.cache_data
-    def load_contacts():
-        try:
-            return pd.read_csv('龙华中小学校通讯录（含幼儿园）.csv', encoding='utf-8-sig').fillna('无')
-        except:
-            return pd.read_csv('龙华中小学校通讯录（含幼儿园）.csv', encoding='gbk').fillna('无')
-
-    df = load_contacts()
-    q = st.text_input("请输入学校名或人名关键词：", placeholder="例如：龙华中学 或 张三")
-    if q:
-        mask = df.apply(lambda r: any(q.lower() in str(v).lower() for v in r.values), axis=1)
-        st.dataframe(df[mask], use_container_width=True, hide_index=True)
-    else:
-        st.caption("👆 在上方输入关键词开始搜索")
