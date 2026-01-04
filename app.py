@@ -34,9 +34,9 @@ st.markdown("""
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     
-    /* 仅在桌面端隐藏 Header (为了美观) */
+    /* 仅在桌面端隐藏 Header (为了美观) -> 已恢复显示以确保侧边栏可用 */
     @media (min-width: 769px) {
-        header {visibility: hidden;}
+        header {visibility: visible;}
     }
     
     /* 手机端必须显示 Header，否则无法点开侧边栏 */
@@ -169,16 +169,23 @@ with st.sidebar:
     
     st.markdown("---")
     
-    mode = st.radio("功能切换：", ["📝 领导公务单自动生成器", "🔍 龙华学校查号台"])
+    mode = st.radio("功能切换：", [
+        "✨ 体卫艺简报助手",
+        "📝 领导公务单自动生成器", 
+        "🔍 龙华学校查号台"
+    ])
     
     st.markdown("---")
     st.info("""
     **💡 助手功能说明：**
     
-    1. **公务单生成**：
+    1. **简报助手**：
+       智能润色会议简报
+    
+    2. **公务单生成**：
        语音口语 → 规范公文Word
        
-    2. **学校查号台**：
+    3. **学校查号台**：
        全区通讯录一键查询
     """)
     st.caption("维护者：孙沛 | 龙华区教育局体卫艺专用")
@@ -189,8 +196,42 @@ with st.sidebar:
         st.session_state.parseddata_doc = None
         st.rerun()
 
-# ----------------- 模块一：领导公务单生成器 -----------------
-if mode == "📝 领导公务单自动生成器":
+# ----------------- 模块一：体卫艺简报助手 -----------------
+if mode == "✨ 体卫艺简报助手":
+    st.caption("↖️ **导航提示：** 点击左上角 **>** 图标打开菜单，可切换至其他功能")
+    st.markdown("# ✨ 体卫艺简报助手")
+    st.caption("@Technical Support Provided by Peipei")
+    
+    with st.container(border=True):
+        # 助手介绍
+        st.markdown("""
+        <div style='background-color: #f0f7ff; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #667eea;'>
+            <p style='margin: 0; line-height: 1.6; color: #333;'>
+                🤖 你好，我是擅长将杂乱信息转化为规范政务简讯的小助手，能为你打造高质量的体卫艺相关简报。
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.info("👇 **请直接发送：会议通知 + 参会名单 + 杂乱语音稿**")
+        st.write("") 
+        
+        # Coze 商店链接
+        DEEPSEEK_LINK = "https://www.coze.cn/store/agent/7587031903597985832?from=store_search_suggestion&bid=6ilacph8g3009"
+        
+        st.link_button("🚀 点击启动", DEEPSEEK_LINK)
+        
+        st.write("")
+        st.markdown("""
+        <small style='color:gray'>
+        💡 <b>使用说明：</b><br>
+        1. 点击按钮将跳转至体卫艺专用 AI 页面。<br>
+        2. 支持超长文本处理与 DeepSeek 深度思考。<br>
+        3. <b>无需配置 Key，永久免费使用。</b>
+        </small>
+        """, unsafe_allow_html=True)
+
+# ----------------- 模块二：领导公务单自动生成器 -----------------
+elif mode == "📝 领导公务单自动生成器":
     
     # 导航提示 (针对手机端用户不明显的问题)
     st.caption("↖️ **导航提示：** 点击左上角 **>** 图标打开菜单，可切换至「学校查号台」")
@@ -397,10 +438,10 @@ if mode == "📝 领导公务单自动生成器":
             except Exception as e:
                 st.error(f"生成失败：{e}")
 
-# ----------------- 模块二：龙华学校查号台 -----------------
-else:
+# ----------------- 模块三：龙华学校查号台 -----------------
+elif mode == "🔍 龙华学校查号台":
     # 导航提示
-    st.caption("↖️ **导航提示：** 点击左上角 **>** 图标打开菜单，可返回「公务单生成器」")
+    st.caption("↖️ **导航提示：** 点击左上角 **>** 图标打开菜单，可切换至其他功能")
     
     st.markdown("### 🔍 龙华学校查号台")
     st.caption("全区学校通讯录快速查询系统")
@@ -436,4 +477,4 @@ else:
         st.write(f"📊 搜索结果：找到 {len(df[mask])} 条记录")
         st.dataframe(df[mask], use_container_width=True, hide_index=True)
     else:
-        st.caption("👆 在上方输入关键词开始搜索，支持模糊匹配。")   
+        st.caption("👆 在上方输入关键词开始搜索，支持模糊匹配。") 
