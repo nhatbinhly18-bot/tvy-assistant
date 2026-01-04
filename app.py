@@ -436,4 +436,4 @@ else:
         st.write(f"📊 搜索结果：找到 {len(df[mask])} 条记录")
         st.dataframe(df[mask], use_container_width=True, hide_index=True)
     else:
-        st.caption("👆 在上方输入关键词开始搜索，支持模糊匹配。") 
+        st.caption("👆 在上方输入关键词开始搜索，支持模糊匹配。")   
